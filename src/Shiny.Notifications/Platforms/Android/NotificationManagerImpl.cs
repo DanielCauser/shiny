@@ -4,6 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Support.V4.App;
+using Shiny.Settings;
 using TaskStackBuilder = Android.App.TaskStackBuilder;
 
 
@@ -12,13 +13,15 @@ namespace Shiny.Notifications
     public class NotificationManagerImpl : INotificationManager
     {
         readonly IAndroidContext context;
+        readonly ISettings settings;
 
         NotificationManager newManager;
         NotificationManagerCompat compatManager;
 
 
-        public NotificationManagerImpl(IAndroidContext context)
+        public NotificationManagerImpl(IAndroidContext context, ISettings settings)
         {
+            this.settings = settings;
             this.context = context;
             if ((int) Build.VERSION.SdkInt >= 26)
             {
@@ -56,15 +59,12 @@ namespace Shiny.Notifications
         //https://stackoverflow.com/questions/45462666/notificationcompat-builder-deprecated-in-android-o
         public async Task Send(Notification notification)
         {
-            //if (notification.NextTriggerDate != null)
-            //{
-            //    // TODO: notificationID?
-            //    await this.Repository.Set(notification.Id.ToString(), notification);
-            //    return;
-            //}
+            if (notification.Id == 0)
+                notification.Id = this.settings.IncrementValue("NotificationId");
 
-            var launchIntent = Application
-                .Context
+            var launchIntent = this
+                .context
+                .AppContext
                 .PackageManager
                 .GetLaunchIntentForPackage(this.context.Package.PackageName)
                 .SetFlags(notification.Android.LaunchActivityFlags.ToNative());
@@ -75,8 +75,8 @@ namespace Shiny.Notifications
             var pendingIntent = TaskStackBuilder
                 .Create(this.context.AppContext)
                 .AddNextIntent(launchIntent)
-                .GetPendingIntent(notification.Id, PendingIntentFlags.CancelCurrent);
-            //.GetPendingIntent(notification.Id, PendingIntentFlags.OneShot | PendingIntentFlags.CancelCurrent);
+                .GetPendingIntent(notification.Id, PendingIntentFlags.OneShot);
+                //.GetPendingIntent(notification.Id, PendingIntentFlags.OneShot | PendingIntentFlags.CancelCurrent);
 
             var smallIconResourceId = this.context.GetResourceIdByName(notification.Android.SmallIconResourceName);
 

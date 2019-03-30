@@ -7,7 +7,7 @@ using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 
 
-namespace Samples.Loggers
+namespace Samples.Logging
 {
     public class AppCenterLogger : ILogger
     {
@@ -22,7 +22,10 @@ namespace Samples.Loggers
 
 
         public void Write(Exception exception, params (string Key, string Value)[] parameters)
-            => Crashes.TrackError(exception, ToDictionary(parameters));
+        {
+            if (!exception.Message.StartsWith("TEST"))
+                Crashes.TrackError(exception, ToDictionary(parameters));
+        }
 
 
         public void Write(string eventName, string details, params (string Key, string Value)[] parameters)

@@ -9,7 +9,8 @@ using Shiny.SpeechRecognition;
 using Shiny.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Samples.Settings;
-using Samples.Loggers;
+using Samples.Logging;
+
 
 namespace Samples.ShinySetup
 {
@@ -19,7 +20,7 @@ namespace Samples.ShinySetup
         {
             Log.UseConsole();
             Log.UseDebug();
-            Log.AddLogger(new AppCenterLogger(), true, false);
+            Log.AddLogger(new AppCenterLogger(), true, true);
             Log.AddLogger(new DbLogger(), true, false);
 
             // create your infrastructures
@@ -32,7 +33,7 @@ namespace Samples.ShinySetup
             builder.RegisterStartupTask<JobLoggerTask>();
 
             // configuration
-            builder.RegisterSettings<AppSettings>();
+            builder.RegisterSettings<AppSettings>("AppSettings");
 
             // register all of the acr stuff you want to use
             builder.UseHttpTransfers<SampleAllDelegate>();

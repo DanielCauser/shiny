@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 
@@ -8,10 +9,12 @@ namespace Shiny.Caching
     {
         TimeSpan DefaultLifeSpan { get; set; }
         bool Enabled { get; set; }
-        void Set(string key, object obj, TimeSpan? timeSpan = null);
-        T Get<T>(string key);
+
+        Task<IEnumerable<CacheItem>> GetCachedItems();
+        Task Set(string key, object obj, TimeSpan? timeSpan = null);
+        Task<T> Get<T>(string key);
         Task<T> TryGet<T>(string key, Func<Task<T>> getter, TimeSpan? timeSpan = null);
-        bool Remove(string key);
-        void Clear();
+        Task<bool> Remove(string key);
+        Task Clear();
     }
 }

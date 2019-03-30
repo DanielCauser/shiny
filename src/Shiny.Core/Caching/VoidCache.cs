@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace Shiny.Caching
 {
-    public class VoidCacheImpl : AbstractCache
+    public class VoidCache : AbstractCache
     {
         protected override void Init() { }
-        public override T Get<T>(string key) => default(T);
-        public override void Set(string key, object obj, TimeSpan? timeSpan = null) { }
-        public override void Clear() { }
-        public override bool Remove(string key) => false;
+        public override Task<T> Get<T>(string key) => Task.FromResult(default(T));
+        public override Task Set(string key, object obj, TimeSpan? timeSpan = null) => Task.CompletedTask;
+        public override Task Clear() => Task.CompletedTask;
+        public override Task<bool> Remove(string key) => Task.FromResult(false);
+        public override Task<IEnumerable<CacheItem>> GetCachedItems() => Task.FromResult(Enumerable.Empty<CacheItem>());
     }
 }
